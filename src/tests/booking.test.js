@@ -1,5 +1,5 @@
 import request from "supertest";
-import app from "../src/app.js";
+import app from "../app.js";
 import "./setup.js";
 
 let patientToken;
@@ -7,76 +7,76 @@ let doctorToken;
 let doctorId;
 
 beforeAll(async () => {
-  // create doctor
+  // doctor register
   await request(app).post("/auth/register").send({
-    name: "doc",
-    email: "doc2@test.com",
+    name: "doctor",
+    email: "doc@test.com",
     password: "123456",
     role: "doctor",
   });
 
   const docLogin = await request(app).post("/auth/login").send({
-    email: "doc2@test.com",
+    email: "doc@test.com",
     password: "123456",
   });
 
   doctorToken = docLogin.body.token;
 
-  const doc = await request(app)
+  const doctor = await request(app)
     .post("/doctors")
     .set("Authorization", `Bearer ${doctorToken}`)
     .send({
-      specialization: "cardio",
-      workingDays: ["sun"],
+      specialization: "cardiology",
+      workingDays: ["fri"],
       workingHours: { start: "10:00", end: "12:00" },
       breaks: [],
       offDates: [],
       sessionDuration: 30,
     });
 
-  doctorId = doc.body._id;
+  doctorId = doctor.body._id;
 
-  // create patient
+  // patient register
   await request(app).post("/auth/register").send({
     name: "patient",
-    email: "p@test.com",
+    email: "patient@test.com",
     password: "123456",
     role: "patient",
   });
 
   const pLogin = await request(app).post("/auth/login").send({
-    email: "p@test.com",
+    email: "patient@test.com",
     password: "123456",
   });
 
   patientToken = pLogin.body.token;
 });
 
-describe("Booking", () => {
-  it("should get slots", async () => {
+describe("Booking API", () => {
+  it("should get available slots", async () => {
     const res = await request(app).get(
       `/bookings/slots?doctorId=${doctorId}&date=2026-05-01`
     );
 
     expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 
   it("should create booking", async () => {
-    const time = new Date("2026-05-01T10:00:00");
-
     const res = await request(app)
       .post("/bookings")
       .set("Authorization", `Bearer ${patientToken}`)
       .send({
         doctorId,
-        time,
+        time: "2026-05-01T10:00:00.000Z",
       });
 
     expect(res.statusCode).toBe(200);
+    expect(res.body._id).toBeDefined();
   });
 
   it("should prevent double booking", async () => {
-    const time = new Date("2026-05-01T10:00:00");
+    const time = "2026-05-01T10:30:00.000Z";
 
     await request(app)
       .post("/bookings")

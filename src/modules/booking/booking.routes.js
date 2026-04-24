@@ -19,7 +19,11 @@ router.post("/", auth, catchAsync(async (req, res) => {
   res.json(data);
 }));
 
-router.patch("/:id/confirm", catchAsync(async (req, res) => {
+router.patch("/:id/confirm", auth, catchAsync(async (req, res) => {
+  if (req.user.role !== "doctor") {
+    return res.status(403).json({ message: "Forbidden" });
+  }
+
   const data = await service.confirmBooking(req.params.id);
   res.json(data);
 }));

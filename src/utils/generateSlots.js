@@ -1,10 +1,12 @@
 export const generateSlots = (doctor, date) => {
+  if (!doctor || !date) return [];
+
   const day = new Date(date)
     .toLocaleDateString("en-US", { weekday: "short" })
     .toLowerCase();
 
-  if (!doctor.workingDays.includes(day)) return [];
-  if (doctor.offDates.includes(date)) return [];
+  if (!doctor.workingDays?.includes(day)) return [];
+  if (doctor.offDates?.includes(date)) return [];
 
   const start = new Date(`${date}T${doctor.workingHours.start}`);
   const end = new Date(`${date}T${doctor.workingHours.end}`);
@@ -15,11 +17,13 @@ export const generateSlots = (doctor, date) => {
   while (current < end) {
     const time = current.toTimeString().slice(0, 5);
 
-    const isBreak = doctor.breaks.some(
+    const isBreak = (doctor.breaks || []).some(
       (b) => time >= b.start && time < b.end
     );
 
-    if (!isBreak) slots.push(new Date(current));
+    if (!isBreak) {
+      slots.push(new Date(current));
+    }
 
     current.setMinutes(current.getMinutes() + doctor.sessionDuration);
   }

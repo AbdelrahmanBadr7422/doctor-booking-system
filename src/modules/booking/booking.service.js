@@ -5,7 +5,10 @@ import { ApiError } from "../../utils/ApiError.js";
 
 export const getSlots = async (doctorId, date) => {
   const doctor = await doctorRepo.findDoctorById(doctorId);
-  if (!doctor) throw new ApiError("Doctor not found");
+
+  if (!doctor) {
+    throw new ApiError("Doctor not found", 404);
+  }
 
   const slots = generateSlots(doctor, date);
 
@@ -14,21 +17,29 @@ export const getSlots = async (doctorId, date) => {
     status: "confirmed",
   });
 
-  const booked = bookings.map(b => b.time.toISOString());
+  const booked = bookings.map((b) => b.time.toISOString());
 
-  return slots.filter(s => !booked.includes(s.toISOString()));
+  return slots.filter((s) => !booked.includes(s.toISOString()));
 };
 
 export const createBooking = async (data) => {
+  const time = new Date(data.time);
+
   const exists = await bookingRepo.findBooking({
     doctorId: data.doctorId,
-    time: data.time,
+    time: time,
     status: "confirmed",
   });
 
-  if (exists) throw new ApiError("Slot already booked");
+  if (exists) {
+    throw new ApiError("Slot already booked", 400);
+  }
 
-  return bookingRepo.createBooking(data);
+  return bookingRepo.createBooking({
+    ...data,
+    time,
+    status: "confirmed",
+  });
 };
 
 export const confirmBooking = (id) =>

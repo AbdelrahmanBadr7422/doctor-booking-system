@@ -1,14 +1,22 @@
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
 
-let mongo;
+const DB_URI =
+  process.env.MONGO_URI ||
+  "mongodb://127.0.0.1:27017/doctor-booking-test";
 
 beforeAll(async () => {
-  mongo = await MongoMemoryServer.create();
-  await mongoose.connect(mongo.getUri());
+  await mongoose.connect(DB_URI);
 });
 
 afterAll(async () => {
+  await mongoose.connection.dropDatabase();
   await mongoose.disconnect();
-  await mongo.stop();
+});
+
+afterEach(async () => {
+  const collections = mongoose.connection.collections;
+
+  for (const key in collections) {
+    await collections[key].deleteMany({});
+  }
 });

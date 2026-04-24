@@ -10,14 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    services:
-      mongo:
-        image: mongo:6
-        ports:
-          - 27017:27017
-
     env:
-      MONGO_URI: mongodb://localhost:27017/doctor-booking-test
       JWT_SECRET: testsecret
 
     steps:

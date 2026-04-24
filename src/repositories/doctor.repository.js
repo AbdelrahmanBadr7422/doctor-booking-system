@@ -1,13 +1,13 @@
 import { Doctor } from "../models/doctor.model.js";
 
 export const createDoctor = (data) => {
-  Doctor.create(data);
-}
+  return Doctor.create(data);
+};
 
 export const findDoctorById = (id) => {
-  Doctor.findById(id);
-}
+  return Doctor.findById(id);
+};
 
-export const findDoctors = (filter) => {
-  Doctor.find(filter);
-}
+export const findDoctors = (filter = {}) => {
+  return Doctor.find(filter);
+};

@@ -5,14 +5,21 @@ export const getSlots = async (req, res) => {
   res.json(data);
 };
 
-export const createBooking = async (req, res) => {
-  const data = await service.createBooking({
-    patientId: req.user.id,
-    doctorId: req.body.doctorId,
-    time: req.body.time,
+export const createBooking = async (data) => {
+  const exists = await bookingRepo.findBooking({
+    doctorId: data.doctorId,
+    time: new Date(data.time),
+    status: "confirmed",
   });
 
-  res.json(data);
+  if (exists) {
+    throw new ApiError("Slot already booked", 400);
+  }
+
+  return bookingRepo.createBooking({
+    ...data,
+    status: "confirmed",
+  });
 };
 
 export const cancelBooking = async (req, res) => {
