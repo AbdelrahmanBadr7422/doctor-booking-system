@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# env
+.env
+
+# logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# coverage (tests)
+coverage/
+
+# docker volumes (optional local)
+mongo_data/
+
+# IDE
+.vscode/
+.idea/
+
+# build output
+dist/
+build/
